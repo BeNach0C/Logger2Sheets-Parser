@@ -6,6 +6,7 @@ El output son varios archivos cada uno para las siguientes acciones:
 Bloques puestos y rotos, Cofres y mesas, Fluidos y Letreros.
 Lo demás no creí que fuera necesario organizar, ya que es simple de leer en el log.
 Cada archivo posee una página por jugador, la cuál va organizada por fecha y hora.
+El archivo log_analizer.exe no requiere tener python instalado.
 
 Uso:
 El archivo log_analizer.exe (o en su defecto el .py) debe ir en la ruta de logs del plugin.
@@ -18,6 +19,7 @@ The output consists of several files, each for the following actions:
 Blocks placed and broken, Chests & tables, Fluids, and Signs.
 I didn't think the rest needed organizing, as it's easy to read in the logs.
 Each file has one page per player, organized by date and time.
+The file log_analizer.exe does not require python to be installed.
 
 USAGE:
 The log_analizer.exe file (or the .py file) must be placed in the plugin's log directory.
