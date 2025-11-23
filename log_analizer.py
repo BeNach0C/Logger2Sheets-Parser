@@ -43,8 +43,6 @@ def parse_log_data(log_file_path):
     # 2. Dimensión (entre corchetes, ej: [world], [%world%] o [Anark])
     # 3. Nombre del jugador (entre < >)
     # 4. El resto de la acción y coordenadas (capturadas de forma más flexible)
-    # Nota: Los logs de "Anvil" tienen [%world%] en lugar de [world] y el patrón es diferente.
-    # Usamos un patrón flexible y luego refinamos el parseo.
     log_pattern = re.compile(
         r'^\[(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2})\]\s+\[(.*?)\]\s+.*<\s*(\w+)\s*>\s+(.*)'
     )
@@ -72,7 +70,7 @@ def parse_log_data(log_file_path):
                         formatted_time = log_time_raw # La hora ya está en el formato HH:MM:SS
                     except ValueError:
                         print(f"Advertencia: No se pudo parsear la fecha/hora en la línea: {line.strip()}")
-                        continue # Saltar a la siguiente línea si la fecha/hora es inválida
+                        continue 
 
                     # 2. Extraer Coordenadas
                     coord_match = coord_pattern.search(action_raw)
@@ -102,34 +100,32 @@ def parse_log_data(log_file_path):
 
 def create_excel_report(action_name, log_data):
     """
-    Genera un archivo Excel con múltiples hojas, una por jugador.
+    Genera un archivo Excel con múltiples hojas, una por jugador,
+    utilizando solo el nombre de la acción para sobrescribir el archivo.
 
     Args:
         action_name (str): Nombre base de la acción para el archivo.
         log_data (list): Lista de todos los diccionarios de datos.
     """
     if not log_data:
-        print(f"No hay datos para la acción '{action_name}'. Omitiendo la creación del archivo.")
+        print(f"No hay datos para la acción '{action_name.replace('_', ' ')}'. Omitiendo la creación del archivo.")
         return
 
     # Convertir todos los datos a un DataFrame de pandas
     df_all = pd.DataFrame(log_data)
     
     # Asegurarse de que el DataFrame solo contenga las columnas requeridas (más la columna 'Jugador')
-    # Y mantener el orden de las columnas de salida
     columnas_df = ['Fecha', 'Hora', 'Dimensión', 'Coordenadas', 'Acción Completa', 'Jugador']
     df_all = df_all[columnas_df]
 
-    # Crear el nombre del archivo Excel en el formato solicitado
-    current_time = datetime.now()
-    file_date = current_time.strftime('%d_%m_%Y') # Usamos guión bajo en el nombre del archivo para evitar problemas.
-    file_time = current_time.strftime('%H_%M_%S')
-    
-    # Usamos la hora actual para el nombre del archivo.
-    excel_filename = f"{action_name}_{file_date}_{file_time}.xlsx"
+    # Modificación aquí: el nombre del archivo es solo el nombre de la acción.
+    # Reemplazamos los guiones bajos por espacios para el nombre del archivo, 
+    # y luego volvemos a poner guiones bajos para que el nombre de archivo sea seguro.
+    safe_action_name = action_name.replace('_', ' ').replace(' ', '_')
+    excel_filename = f"{safe_action_name}.xlsx"
     excel_path = os.path.join(OUTPUT_FOLDER, excel_filename)
 
-    # Agrupar los datos por jugador para crear una hoja por cada uno
+    # El modo 'w' o la creación directa con pd.ExcelWriter sobrescribe archivos existentes.
     writer = pd.ExcelWriter(excel_path, engine='openpyxl')
     
     # Obtener la lista única de jugadores
@@ -143,13 +139,11 @@ def create_excel_report(action_name, log_data):
         # Eliminar la columna 'Jugador' del contenido de la hoja
         df_player.drop(columns=['Jugador'], inplace=True)
         
-        # Escribir la hoja de Excel
-        # Reemplazamos caracteres inválidos para nombres de hoja (Excel tiene restricciones)
-        sheet_name = player.replace('[', '').replace(']', '').replace(':', '').replace('/', '').replace('\\', '').replace('?', '*').replace('*', ' ').replace('<', '').replace('>', '').replace(' ', '_')
-        # Limitar a 31 caracteres, que es el máximo de Excel
+        # Sanitizar el nombre del jugador para usarlo como nombre de la hoja (máx 31 chars)
+        sheet_name = player.replace('[', '').replace(']', '').replace(':', '').replace('/', '').replace('\\', '').replace('?', '*').replace('*', ' ').replace('<', '').replace('>', '').replace(' ', '_').replace('.', '').replace(',', '')
         sheet_name = sheet_name[:31] 
         
-        # Reemplazar los nombres de las columnas en la hoja de salida
+        # Renombrar las columnas de la hoja de salida
         df_player.columns = COLUMNAS
         
         try:
@@ -158,13 +152,12 @@ def create_excel_report(action_name, log_data):
             print(f"Error escribiendo la hoja para el jugador '{player}' en el archivo '{excel_filename}': {e}")
             print(f"Intentando con un nombre de hoja genérico para '{player}'.")
             
-            # Intentar con un nombre seguro si falla el anterior
             safe_sheet_name = f"Jugador_{len(df_all[df_all['Jugador'] == player])}_Regs"
             df_player.to_excel(writer, sheet_name=safe_sheet_name, index=False)
 
     try:
         writer.close()
-        print(f"Éxito: Archivo de Excel creado en: {excel_path}")
+        print(f"Éxito: Archivo de Excel creado/sobrescrito en: {excel_path}")
     except Exception as e:
         print(f"Error al guardar el archivo Excel en {excel_path}: {e}")
 
@@ -207,7 +200,7 @@ def main():
             else:
                 print(f"Advertencia: No se encontraron archivos .log en la carpeta: '{folder}'")
 
-        # 3. Generar el reporte de Excel con los datos combinados
+        # 3. Generar el reporte de Excel con los datos combinados (sobrescribe el anterior)
         create_excel_report(action_name, all_logs_data)
         
     print("\nAnálisis de logs finalizado.")
