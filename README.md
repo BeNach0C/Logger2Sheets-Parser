@@ -1,3 +1,5 @@
+Logger2Sheets Parser
+====================
 Español:
 Este parser organiza el output de Logger y lo organiza en un archivo de celdas.
 El output son varios archivos cada uno para las siguientes acciones:
@@ -5,11 +7,11 @@ Bloques puestos y rotos, Cofres y mesas, Fluidos y Letreros.
 Lo demás no creí que fuera necesario organizar, ya que es simple de leer en el log.
 Cada archivo posee una página por jugador, la cuál va organizada por fecha y hora.
 
-USO:
+Uso:
 El archivo log_analizer.exe (o en su defecto el .py) debe ir en la ruta de logs del plugin.
 Ejemplo: SERVER/Plugins/Logger/Logs/log_analizer.exe
 Después de abrirlo el archivo creará la carpeta "Filtered Sheet", con los archivos solicitados.
-====================================================================================================
+
 English: 
 This parser organizes the Logger output into a sheet file.
 The output consists of several files, each for the following actions:
