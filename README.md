@@ -1,7 +1,7 @@
 Logger2Sheets Parser
 ====================
 Español:
-Este parser organiza el output de Logger y lo organiza en un archivo de celdas.
+Este parser toma el output de Logger y lo organiza en un archivo de celdas.
 El output son varios archivos cada uno para las siguientes acciones:
 Bloques puestos y rotos, Cofres y mesas, Fluidos y Letreros.
 Lo demás no creí que fuera necesario organizar, ya que es simple de leer en el log.
