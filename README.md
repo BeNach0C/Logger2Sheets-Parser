@@ -21,3 +21,7 @@ USAGE:
 The log_analizer.exe file (or the .py file) must be placed in the plugin's log directory.
 Example: SERVER/Plugins/Logger/Logs/log_analizer.exe
 After opening it, the file will create the "Filtered Sheet" folder, containing the requested files.
+
+
+Logger Plugin:
+https://github.com/ExceptedPrism3/Logger
